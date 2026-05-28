@@ -21,12 +21,12 @@ class BootReceiver : BroadcastReceiver() {
         // Tägliche Erinnerung
         fun scheduleDailyReminder(context: Context) {
             val workRequest = PeriodicWorkRequestBuilder<NotificationWorker>(
-                20, TimeUnit.SECONDS // Alle 20 Sekunden
+                15, TimeUnit.MINUTES // Alle 20 Sekunden
             ).build()
 
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                 "cardmaster_daily_reminder",
-                ExistingPeriodicWorkPolicy.KEEP, // Behält den bestehenden Timer, falls er schon läuft
+                ExistingPeriodicWorkPolicy.UPDATE, // Best Practice wäre KEEP! UPDATE dient dem Debugging und der Demonstration.
                 workRequest
             )
         }

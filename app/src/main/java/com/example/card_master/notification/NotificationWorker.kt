@@ -33,15 +33,20 @@ class NotificationWorker(
             notificationManager.createNotificationChannel(channel)
         }
 
-        // Die Benachrichtigung bauen
-        val notification = NotificationCompat.Builder(applicationContext, channelId)
-            .setSmallIcon(R.drawable.ic_lock_idle_alarm) // Nutzt ein Standard-Android-Icon
+        // Die öffentliche Version. Sieht man auf Sperrbildschirm.
+        val publicNotification = NotificationCompat.Builder(applicationContext, channelId)
+            .setSmallIcon(R.drawable.ic_lock_idle_alarm)
             .setContentTitle("CardMaster")
-            // Sichtbarer Text auf dem Sperrbildschirm bei VISIBILITY_PRIVATE:
-            .setTicker("Zeit zum Lernen!")
-            .setContentText("Zeit zum Lernen! Deine Karteikarten warten auf dich.")
-            // Erhöht die Privatsphäre zusätzlich für ältere/bestimmte Android-Systeme
+            .setContentText("Zeit zum Lernen!") // Der neutrale Text
+            .build()
+
+        // Die private Version
+        val notification = NotificationCompat.Builder(applicationContext, channelId)
+            .setSmallIcon(R.drawable.ic_lock_idle_alarm)
+            .setContentTitle("CardMaster")
+            .setContentText("Deine Karteikarten warten auf dich. Leg los!") // Der detaillierte Text
             .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
+            .setPublicVersion(publicNotification) // Die öffentliche Variante
             .setAutoCancel(true)
             .build()
 

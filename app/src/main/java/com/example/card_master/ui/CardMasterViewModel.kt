@@ -19,14 +19,26 @@ class CardMasterViewModel(application: Application) : AndroidViewModel(applicati
     val allDecks: Flow<List<Deck>> = dao.getAllDecks()
     val history: Flow<List<LearningSession>> = dao.getHistory()
 
-    // --- DECKS ---
+    // --- Stapel ---
     fun addDeck(name: String) {
         viewModelScope.launch {
             dao.insertDeck(Deck(name = name))
         }
     }
 
-    // --- CARDS ---
+    // Einen ganzen Stapel und alle seine Karten löschen
+    fun deleteDeckAndItsCards(deck: Deck) {
+        viewModelScope.launch {
+            // Hole alle Karten des Decks
+            val cardsForDeck = dao.getCardsForDeckSync(deck.id)
+            // Lösche all diese Karten
+            dao.deleteCards(cardsForDeck)
+            // Lösche das Deck selbst
+            dao.deleteDeck(deck)
+        }
+    }
+
+    // --- Karten ---
     fun addCard(deckId: Long, front: String, back: String) {
         viewModelScope.launch {
             dao.insertCard(Flashcard(deckId = deckId, front = front, back = back))
@@ -37,28 +49,6 @@ class CardMasterViewModel(application: Application) : AndroidViewModel(applicati
         return dao.getCardsForDeck(deckId)
     }
 
-    // Holt fällige Karten asynchron für den Lernmodus
-    suspend fun getDueCards(deckId: Long): List<Flashcard> {
-        return dao.getDueCardsForDeck(deckId, System.currentTimeMillis())
-    }
-
-    fun updateCardAfterReview(card: Flashcard, wasCorrect: Boolean) {
-        viewModelScope.launch {
-            // Hier nutzen wir unseren Algorithmus aus Phase 3!
-            val updatedCard = SpacedRepetitionManager.calculateNextReview(card, wasCorrect)
-            dao.updateCard(updatedCard)
-        }
-    }
-
-    // --- HISTORY ---
-    fun saveLearningSession(cardsLearned: Int, successRate: Double) {
-        viewModelScope.launch {
-            dao.insertSession(
-                LearningSession(cardsLearned = cardsLearned, successRate = successRate)
-            )
-        }
-    }
-
     // Einzelne Karte löschen
     fun deleteCard(card: Flashcard) {
         viewModelScope.launch {
@@ -66,15 +56,25 @@ class CardMasterViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-    // Einen ganzen Stapel UND alle seine Karten löschen
-    fun deleteDeckAndItsCards(deck: Deck) {
+    // Holt fällige Karten asynchron für den Lernmodus
+    suspend fun getDueCards(deckId: Long): List<Flashcard> {
+        return dao.getDueCardsForDeck(deckId, System.currentTimeMillis())
+    }
+
+    fun updateCardAfterReview(card: Flashcard, wasCorrect: Boolean) {
         viewModelScope.launch {
-            // Hole alle Karten des Decks
-            val cardsForDeck = dao.getCardsForDeckSync(deck.id)
-            // Lösche all diese Karten
-            dao.deleteCards(cardsForDeck)
-            // Lösche das Deck selbst
-            dao.deleteDeck(deck)
+            // Für den Spaced Repetition Algorithmus
+            val updatedCard = SpacedRepetitionManager.calculateNextReview(card, wasCorrect)
+            dao.updateCard(updatedCard)
+        }
+    }
+
+    // --- History ---
+    fun saveLearningSession(cardsLearned: Int, successRate: Double) {
+        viewModelScope.launch {
+            dao.insertSession(
+                LearningSession(cardsLearned = cardsLearned, successRate = successRate)
+            )
         }
     }
 }

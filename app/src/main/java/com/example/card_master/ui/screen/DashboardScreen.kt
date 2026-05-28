@@ -31,8 +31,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.example.card_master.ui.CardMasterViewModel
+import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable // Zeichnet Dashboard Screen
@@ -41,6 +45,8 @@ fun DashboardScreen(
     onDeckClick: (Long, String) -> Unit, // Navigation zum Lernmodus/Karten-Ansicht
     onViewHistoryClick: () -> Unit // Navigation zur History
 ) {
+    val context = LocalContext.current
+
     // Beobachte den Flow aus dem ViewModel. Compose zeichnet sich bei Änderungen neu.
     val decks by viewModel.allDecks.collectAsState(initial = emptyList()) // Alle Decks
     var showDialog by remember { mutableStateOf(false) } // Startwert false und Compose merkt sich den Zustand bei jeder Änderung.
@@ -51,6 +57,16 @@ fun DashboardScreen(
             TopAppBar(
                 title = { Text("CardMaster – Meine Stapel") },
                 actions = {
+                    // Debug Test Button für Notification. Für den Notfall
+                    IconButton(onClick = {
+                        val testRequest = OneTimeWorkRequestBuilder<com.example.card_master.notification.NotificationWorker>()
+                            .setInitialDelay(5, TimeUnit.SECONDS)
+                            .build()
+                        WorkManager.getInstance(context).enqueue(testRequest)
+                    }) {
+                        Text("🔔")
+                    }
+
                     IconButton(onClick = onViewHistoryClick) {
                         Text("📊") // Simples Icon für die History
                     }

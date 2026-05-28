@@ -18,7 +18,7 @@ class NotificationWorker(
         val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val channelId = "cardmaster_reminders"
 
-        // 1. Benachrichtigungskanal erstellen (Ab Android 8.0 Pflicht)
+        // Benachrichtigungskanal erstellen
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 channelId,
@@ -33,7 +33,7 @@ class NotificationWorker(
             notificationManager.createNotificationChannel(channel)
         }
 
-        // 2. Die Benachrichtigung bauen
+        // Die Benachrichtigung bauen
         val notification = NotificationCompat.Builder(applicationContext, channelId)
             .setSmallIcon(R.drawable.ic_lock_idle_alarm) // Nutzt ein Standard-Android-Icon
             .setContentTitle("CardMaster")
@@ -45,7 +45,7 @@ class NotificationWorker(
             .setAutoCancel(true)
             .build()
 
-        // 3. Absenden
+        // Absenden
         notificationManager.notify(1001, notification)
 
         return Result.success()

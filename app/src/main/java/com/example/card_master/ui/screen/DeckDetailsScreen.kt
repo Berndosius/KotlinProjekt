@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,6 +20,11 @@ fun DeckDetailsScreen(
     onStartLearningClick: () -> Unit, // Navigation zum Lernmodus
     onBackClick: () -> Unit // Zurück zum Dashboard
 ) {
+    // Date Formatter für Debugging weiter unten
+    val dateFormatter = remember {
+        java.text.SimpleDateFormat("dd.MM.yy HH:mm:ss", java.util.Locale.getDefault())
+    }
+
     // States.
     // Es werden alle Karten beobachtet die zu dem Stapel gehören
     val cards by viewModel.getCardsForDeck(deckId).collectAsState(initial = emptyList())
@@ -95,7 +101,7 @@ fun DeckDetailsScreen(
                 Text("Jetzt Lernen (Fällige Karten abfragen)")
             }
 
-            Divider()
+            HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)
 
             Text(
                 text = "Karten in diesem Stapel (${cards.size})",
@@ -129,6 +135,21 @@ fun DeckDetailsScreen(
                                     Spacer(modifier = Modifier.height(4.dp))
                                     Text("Rückseite:", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
                                     Text(card.back, style = MaterialTheme.typography.bodyMedium)
+
+                                    // Debugging Information für den Algorithmus. Stufe und Fälligkeitsdatum sind sichtbar gemacht.
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    HorizontalDivider(
+                                        Modifier,
+                                        DividerDefaults.Thickness,
+                                        DividerDefaults.color
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    val dateString = dateFormatter.format(java.util.Date(card.nextReviewTimestamp))
+                                    Text(
+                                        text = "Algorithmus: Stufe ${card.repetitionStage} | Fällig ab: $dateString",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
                                 }
 
                                 // Mülleimer-Button für die einzelne Karte

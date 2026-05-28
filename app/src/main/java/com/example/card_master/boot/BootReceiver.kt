@@ -21,7 +21,7 @@ class BootReceiver : BroadcastReceiver() {
         // Tägliche Erinnerung
         fun scheduleDailyReminder(context: Context) {
             val workRequest = PeriodicWorkRequestBuilder<NotificationWorker>(
-                15, TimeUnit.MINUTES // Alle 20 Sekunden
+                15, TimeUnit.MINUTES // Alle 15 Minuten
             ).build()
 
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(

@@ -69,12 +69,11 @@ class CardMasterViewModel(application: Application) : AndroidViewModel(applicati
     // Einen ganzen Stapel UND alle seine Karten löschen
     fun deleteDeckAndItsCards(deck: Deck) {
         viewModelScope.launch {
-            // 1. Hole alle Karten des Decks
-            // (Wir nutzen einen direkten Aufruf, da Flow hier zu träge wäre)
+            // Hole alle Karten des Decks
             val cardsForDeck = dao.getCardsForDeckSync(deck.id)
-            // 2. Lösche all diese Karten
+            // Lösche all diese Karten
             dao.deleteCards(cardsForDeck)
-            // 3. Lösche das Deck selbst
+            // Lösche das Deck selbst
             dao.deleteDeck(deck)
         }
     }
